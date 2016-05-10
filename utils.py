@@ -1,7 +1,8 @@
 import numpy as np
 import chess
 
-POSITION_SIZE = (6*2 + 1) * 64 + 4
+# pieces on each sq, whose turn, castling availability, en passant
+POSITION_SIZE = (6*2 + 1) * 64 + 2 + 4 + 64
 MOVES_SIZE = 64 * 63
 SQUARES = ["{}{}".format(letter, number) for number in range(8,0,-1) for letter in "abcdefgh"]
 MOVES = ["{}{}".format(start, dest) for start in SQUARES for dest in SQUARES if start != dest]
@@ -61,7 +62,9 @@ def pos_idx(sq_number, piece_str=None):
 
 def encode_position(board):
 	fen = board.fen()
-	position,_,castling,_,_,_  = fen.split()
+	position,color,castling,en_passant,_,_  = fen.split()
+
+	N_SQUARES = (6*2 + 1) * 64
 
 	# each possible piece + one space for empty for each chess square,
 	# plus castling options
@@ -75,8 +78,24 @@ def encode_position(board):
 			output[pos_idx(sq_number, char)] = 1.
 			sq_number += 1
 
-	return output
+	if color == 'w':
+		ouptut[N_SQUARES] = 1
+	else:
+		output[N_SQUARES+1] = 1
 
+	if "K" in castling:
+		output[N_SQUARES + 2] = 1
+	elif "Q" in castling:
+		output[N_SQUARES + 3] = 1
+	elif "k" in castling:
+		output[N_SQUARES + 4] = 1
+	elif "q" in castling:
+		output[N_SQUARES + 5] = 1 
+
+	if en_passant != "-":
+		output[N_SQUARES + 6 + alg_to_sq_number(en_passant)] = 1
+
+	return output
 
 def test():
 	b = chess.Board()
