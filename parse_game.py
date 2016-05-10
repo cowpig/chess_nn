@@ -8,6 +8,7 @@ import random
 import h5py
 
 '''
+File I/O utils for the FICS game database.
 
 Source: https://github.com/erikbern/deep-pink
 '''
@@ -32,12 +33,6 @@ def read_games(fn):
         
         yield g
 
-
-def parse_game(g):
-    '''
-    Returns some sort of object that we'll convert to hdf5 later on
-    '''
-    pass
 
 def read_all_games(fn_in, fn_out):    
     for game in read_games(fn_in):
