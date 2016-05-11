@@ -10,7 +10,7 @@ PIECES_LOOKUP= {
     "p": 1,
     "P": 2,
     "r": 3,
-    "R": 4, 
+    "R": 4,
     "n": 5,
     "N": 6,
     "b": 7,
@@ -53,7 +53,7 @@ def possible_moves():
 		return set((1, 2)) == set((abs(x1 - x2), abs(y1 - y2)))
 
 	def is_linear((x1, y1), (x2, y2)):
-		return (x1 == x2) != (y1 == y2) 
+		return (x1 == x2) != (y1 == y2)
 
 	return filter_moves(is_diagonal, is_knight, is_linear)
 
@@ -180,7 +180,7 @@ def encode_position(board):
     elif "k" in castling:
         output[N_SQUARES + 4] = 1
     elif "q" in castling:
-        output[N_SQUARES + 5] = 1 
+        output[N_SQUARES + 5] = 1
 
     if en_passant != "-":
         output[N_SQUARES + 6 + en_passant_idx(en_passant)] = 1
