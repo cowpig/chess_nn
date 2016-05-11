@@ -6,7 +6,6 @@ from itertools import product
 POSITION_SIZE = (6*2 + 1) * 64 + 2 + 4 + 16
 SQUARES = ["{}{}".format(letter, number) for number in range(8,0,-1) for letter in "abcdefgh"]
 PIECES_LOOKUP= {
-    "_": 0,
     "p": 1,
     "P": 2,
     "r": 3,
