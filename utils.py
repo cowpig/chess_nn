@@ -42,9 +42,9 @@ def to_alg(sq):
 def possible_moves():
 	# turns (0,0) into a8, and ()
 	def filter_moves(*funcs):
-		rngs = lambda: (range(8), range(8))
+		rngs = (range(8), range(8))
 		return [(sq1, sq2)
-				for sq1, sq2 in product(product(*rngs()), product(*rngs()))
+				for sq1, sq2 in product(product(*rngs), product(*rngs))
 				if any(func(sq1, sq2) for func in funcs)]
 
 	def is_diagonal((x1, y1), (x2, y2)):
