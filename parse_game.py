@@ -41,12 +41,9 @@ def read_all_games(fn_in, fn_out):
     for game in read_games(fn_in):
         gn = game.end()
         while gn:
-            import ipdb; ipdb.set_trace()
             b = gn.parent.board()
             x = utils.bb2array(b, flip=(b.turn == 0))
-
-
-
+            print x
 
 def read_all_games_2(a):
     return read_all_games(*a)
