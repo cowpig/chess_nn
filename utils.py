@@ -1,25 +1,24 @@
 import numpy as np
 import chess
+from import combinations, product
 
 # pieces on each sq, whose turn, castling availability, en passant
 POSITION_SIZE = (6*2 + 1) * 64 + 2 + 4 + 16
-MOVES_SIZE = 64 * 63
 SQUARES = ["{}{}".format(letter, number) for number in range(8,0,-1) for letter in "abcdefgh"]
-MOVES = ["{}{}".format(start, dest) for start in SQUARES for dest in SQUARES if start != dest]
 PIECES_LOOKUP= {
     "b": 0,
     "p": 1,
-    "P": 1,
-    "r": 2,
-    "R": 2, 
-    "n": 3,
-    "N": 3,
-    "b": 4,
-    "B": 4,
-    "q": 5,
-    "Q": 5,
-    "k": 6,
-    "K": 6
+    "P": 2,
+    "r": 3,
+    "R": 4, 
+    "n": 5,
+    "N": 6,
+    "b": 7,
+    "B": 8,
+    "q": 9,
+    "Q": 10,
+    "k": 11,
+    "K": 12
 }
 
 # Legal Moves encoding
@@ -27,21 +26,47 @@ PIECES_LOOKUP= {
 def sq_number_to_alg(sq_number):
     return SQUARES[sq_number]
 
+MOVES = possible_moves
+
+def to_alg(sq):
+	# assumes a8 is 0 and h1 is 63
+	if type(sq) == int:
+		return SQUARES[number]
+	# assumes a8 is (0,0) and h1 is (7,7)
+	elif type(sq) == tuple:
+		return chr(sq[0] + 97) + str(8-sq[1])
+	else:
+		raise ValueError("to_alg only understands square coord tuples and numbers")
+
+# Legal Moves encoding
+######################
+def possible_moves():
+	# turns (0,0) into a8, and ()
+	def filter_moves(*funcs):
+		lambda rngs: return (range(8), range(8))
+		return [(sq1, sq2)
+				for sq1, sq2 in product(product(*rngs), product(*rngs))
+				if any(func(sq1, sq2) for func in funcs)]
+
+	def is_diagonal((x1, y1), (x2, y2)):
+		return (abs(x1 - x2) == abs(y1 - y2)) and x1 != x2
+
+	def is_knight((x1, y1), (x2, y2)):
+		return set((1, 2)) == set((abs(x1 - x2), abs(y1 - y2)))
+
+	def is_linear((x1, y1), (x2, y2)):
+		return (x1 == x2) != (y1 == y2) 
+
+	return filter_moves(is_diagonal, is_knight, is_linear)
+
 # a8 is 0, b8 is 1, ... h1 is 63, to match with FEN notation
 def alg_to_sq_number(alg):
     SQUARES_LOOKUP = {alg:ordinal for ordinal, alg in enumerate(SQUARES)}
     return SQUARES_LOOKUP[alg]
 
 def move_idx(move_str):
-    start = alg_to_sq_number(move_str[:2])
-    end = alg_to_sq_number(move_str[2:])
-
-    # remove redundant square-to-itself
-    if end > start:
-        end -= 1
-
-    return start * 63 + end
-
+	return MOVES.index(move_str)
+    
 def encode_legal_moves(board):
     # for every square, every other square is possible
     output = np.zeros(MOVES_SIZE)
@@ -53,6 +78,7 @@ def encode_legal_moves(board):
 
 def sort_decode_moves(moves_vec):
     return sorted(zip(MOVES, moves_vec), lambda a,b: int(b[1]-a[1]*10000))
+
 
 # Position Encoding
 ####################
