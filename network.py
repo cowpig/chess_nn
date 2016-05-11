@@ -1,9 +1,9 @@
 import tensorflow as tf
 import utils
 
-# get data for training + validation 
+# get data for training + validation
 
-# building the graph 
+# building the graph
 def weight_variable(shape):
   initial = tf.truncated_normal(shape, stddev=0.1)
   return tf.Variable(initial)
@@ -28,10 +28,10 @@ def inference(input_data, hidden1_units, hidden2_units):
        input data
        hidden_units: size of the given hidden layer
     Returns:
-       activation vector on the output layer 
+       activation vector on the output layer
     '''
 
-  # HIDDEN LAYER 1                              
+  # HIDDEN LAYER 1
   with tf.name_scope('hidden1'):
 
       input_shape = input_data.shape
@@ -40,8 +40,8 @@ def inference(input_data, hidden1_units, hidden2_units):
 
       # dot product -> activation
       hidden1 = tf.nn.relu(tf.matmul(input_data, weights1) + biases1)
-                                 
-# HIDDEN LAYER 2                             
+
+# HIDDEN LAYER 2
   with tf.name_scope('hidden2'):
 
       weights2 = weight_variable((hidden1_units, hidden2_units))
