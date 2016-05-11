@@ -7,6 +7,8 @@ import itertools
 import random
 import h5py
 
+import utils
+
 '''
 File I/O utils for the FICS game database.
 
@@ -34,10 +36,17 @@ def read_games(fn):
         yield g
 
 
-def read_all_games(fn_in, fn_out):    
+def read_all_games(fn_in, fn_out):
+    data = []
     for game in read_games(fn_in):
-        import pdb; pdb.set_trace()
-        print game
+        gn = game.end()
+        while gn:
+            import ipdb; ipdb.set_trace()
+            b = gn.parent.board()
+            x = utils.bb2array(b, flip=(b.turn == 0))
+
+
+
 
 def read_all_games_2(a):
     return read_all_games(*a)
