@@ -43,7 +43,7 @@ def possible_moves():
 	def filter_moves(*funcs):
 		rngs = [range(8)]*2
 		return [(sq1, sq2)
-                            for sq1, sq2 in product(product(*rngs()), product(*rngs()))
+                            for sq1, sq2 in product(product(*rngs), product(*rngs))
                             if any(func(sq1, sq2) for func in funcs)]
 
 	def is_diagonal((x1, y1), (x2, y2)):
