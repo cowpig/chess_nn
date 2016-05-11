@@ -1,12 +1,12 @@
 import numpy as np
 import chess
-from import combinations, product
+from itertools import product
 
 # pieces on each sq, whose turn, castling availability, en passant
 POSITION_SIZE = (6*2 + 1) * 64 + 2 + 4 + 16
 SQUARES = ["{}{}".format(letter, number) for number in range(8,0,-1) for letter in "abcdefgh"]
 PIECES_LOOKUP= {
-    "b": 0,
+    "_": 0,
     "p": 1,
     "P": 2,
     "r": 3,
@@ -66,7 +66,7 @@ def alg_to_sq_number(alg):
 
 def move_idx(move_str):
 	return MOVES.index(move_str)
-    
+
 def encode_legal_moves(board):
     # for every square, every other square is possible
     output = np.zeros(MOVES_SIZE)
