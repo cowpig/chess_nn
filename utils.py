@@ -20,13 +20,12 @@ PIECES_LOOKUP= {
     "k": 11,
     "K": 12
 }
+MOVES = None # defined later
 
 # Legal Moves encoding
 ######################
 def sq_number_to_alg(sq_number):
     return SQUARES[sq_number]
-
-MOVES = possible_moves
 
 def to_alg(sq):
 	# assumes a8 is 0 and h1 is 63
@@ -43,9 +42,9 @@ def to_alg(sq):
 def possible_moves():
 	# turns (0,0) into a8, and ()
 	def filter_moves(*funcs):
-		lambda rngs: return (range(8), range(8))
+		rngs = lambda: (range(8), range(8))
 		return [(sq1, sq2)
-				for sq1, sq2 in product(product(*rngs), product(*rngs))
+				for sq1, sq2 in product(product(*rngs()), product(*rngs()))
 				if any(func(sq1, sq2) for func in funcs)]
 
 	def is_diagonal((x1, y1), (x2, y2)):
@@ -58,6 +57,8 @@ def possible_moves():
 		return (x1 == x2) != (y1 == y2) 
 
 	return filter_moves(is_diagonal, is_knight, is_linear)
+
+MOVES = possible_moves()
 
 # a8 is 0, b8 is 1, ... h1 is 63, to match with FEN notation
 def alg_to_sq_number(alg):
