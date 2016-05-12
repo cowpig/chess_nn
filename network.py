@@ -18,7 +18,7 @@ def placeholder_inputs(batch_size):
 	code and will be fed from the downloaded data in the .run() loop
 	'''
 	x_placeholder = tf.placeholder(tf.float32, shape=(batch_size, utils.POSITION_SIZE))
-	y_placeholder = tf.placeholder(tf.float32, shape=(utils.MOVES_SIZE))
+	y_placeholder = tf.placeholder(tf.float32, shape=(batch_size, utils.MOVES_SIZE))
 	return x_placeholder, y_placeholder
 
 
@@ -55,9 +55,8 @@ def feedforward(input_data, hidden1_units, hidden2_units):
 		biases3 = bias_variable((utils.MOVES_SIZE))
 
 		logits = tf.matmul(hidden2, weights3) + biases3
-		
-	return logits
 
+	return logits
 
 
 def loss(logits, labels):
@@ -71,6 +70,8 @@ def loss(logits, labels):
 
 	# product 1-hot label
 	labels = tf.to_int64(labels)
+        # performs softmax + cross entropy - logits have to be of [batch_size, num_classes], and of float32 or float64 
+        # labels have to be of [batch_size]
 	cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
 	logits, labels, name= 'xentropy')
 	loss = tf.reduce_mean(cross_entropy, name='xentropy_mean')
@@ -88,3 +89,9 @@ def evaluation(logits, labels):
 	correct = tf.nn.in_top_k(logits, labels, 1)
 	return tf.reduce_sum(tf.cast(correct, tf.int32))
 
+# TEST
+########################
+x = [[1,0], [0,1],[0,0], [1,1]]]
+y = [1,1,0,0]
+
+feedforward(x, 10,10))
