@@ -1,7 +1,9 @@
 import tensorflow as tf
 import utils
 
-# get data for training + validation
+INPUT_NEURONS = 4
+NUM_CLASSES = 4
+
 
 # building the graph
 def weight_variable(shape):
@@ -17,8 +19,8 @@ def placeholder_inputs(batch_size):
 	These placeholders are used as inputs by the rest of the model building
 	code and will be fed from the downloaded data in the .run() loop
 	'''
-	x_placeholder = tf.placeholder(tf.float32, shape=(batch_size, utils.POSITION_SIZE))
-	y_placeholder = tf.placeholder(tf.float32, shape=(batch_size, utils.MOVES_SIZE))
+	x_placeholder = tf.placeholder(tf.float32, shape=(batch_size, INPUT_NEURONS))
+	y_placeholder = tf.placeholder(tf.float32, shape=(batch_size, NUM_CLASSES))
 	return x_placeholder, y_placeholder
 
 
@@ -34,8 +36,7 @@ def feedforward(input_data, hidden1_units, hidden2_units):
 	# HIDDEN LAYER 1
 	with tf.name_scope('hidden1'):
 
-		input_shape = input_data.shape
-		weights1 = weight_variable((input_shape, hidden1_units))
+		weights1 = weight_variable((INPUT_NEURONS, hidden1_units))
 		biases1 = bias_variable(hidden1_units)
 
 		# dot product -> activation
@@ -51,8 +52,8 @@ def feedforward(input_data, hidden1_units, hidden2_units):
 		hidden2 = tf.nn.relu(tf.matmul(hidden1, weights2) + biases2)
 
 	with tf.name_scope('softmax_linear'):
-		weigths3 = weight_variable((hidden2_units, utils.MOVES_SIZE))      # moves_sizes = num of classes
-		biases3 = bias_variable((utils.MOVES_SIZE))
+		weigths3 = weight_variable((hidden2_units, NUM_CLASSES))      # moves_sizes = num of classes
+		biases3 = bias_variable((NUM_CLASSES))
 
 		logits = tf.matmul(hidden2, weights3) + biases3
 
@@ -89,9 +90,3 @@ def evaluation(logits, labels):
 	correct = tf.nn.in_top_k(logits, labels, 1)
 	return tf.reduce_sum(tf.cast(correct, tf.int32))
 
-# TEST
-########################
-x = [[1,0], [0,1],[0,0], [1,1]]]
-y = [1,1,0,0]
-
-feedforward(x, 10,10))

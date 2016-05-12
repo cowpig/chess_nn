@@ -5,14 +5,18 @@ import time
 import network
 
 
-BATCH_SIZE = 0
+BATCH_SIZE = None
 NUM_HIDDEN1 = 10
 NUM_HIDDEN2 = 10
 ETA = 0.5
 EPOCHS = 30
 
+flags = tf.app.flags
+FLAGS = flags.FLAGS
+flags.DEFINE_string('train_dir', 'data', 'Directory to put the training data.')
 
-def fill_dict(input_data, input_placeholder, label_placeholder):
+
+def fill_dict(input_data, labels, input_placeholder, label_placeholder):
     ''' Returns a dictionary of placeholders and input data'''
     input_data_pl, labels_pl = network.placeholder_inputs(BATCH_SIZE)
 
@@ -25,20 +29,24 @@ def fill_dict(input_data, input_placeholder, label_placeholder):
 def validate(sess,eval_correct,input_pl, labels_pl, data_set):
     '''Evaluates after each session/each epoch of data'''
 
+    data = data_set[0]
+    labels = data_set[1]
     correct_count = 0
-    dataset_size = len(data_set)
-    batches = [data_set[k:k+BATCHSIZE] for k in xrange(0, dataset_size,BATCH_SIZE)]
+    dataset_size = len(data)
+    batches = [data[k:k+BATCHSIZE] for k in xrange(0, dataset_size,BATCH_SIZE)]
     for batch in batches:
-        feed_dict = fill_dict(data_set,
+        feed_dict = fill_dict(data,
+                              labels,
                               input_pl,
                               labels_pl)
         correct_count += sess.run(eval_correct, feed_dict=feed_dict)
     accuracy = correct_count / dataset_size
     print 'From %d examples: %d is correct. Precision: %0.04f'%(dataset_size, correct_count, accuracy)
 
-def run_training():
+def run_training(data):
     # TODO: read in data
-    # training_data =
+    training_data = data[0]
+    labels = data[1]
     # test_data = 
 
     with tf.Graph().as_default():
@@ -75,6 +83,7 @@ def run_training():
             batches = [training_data[k:k+BATCHSIZE] for k in xrange(0, training_size,BATCH_SIZE)]
             for batch in batches:
                 feed_dict = fill_dict(training_data,
+                                      labels,
                                       input_pl,
                                       labels_pl)
                 _, loss_value = sess.run([train_op, loss], feed_dict = feed_dict)
@@ -94,9 +103,16 @@ def run_training():
                  labels_pl,
                  test_data)
 
-def main():
-    run_training()
+def main(_):
+    # TEST
+    ########################
+    x = [[1,0], [0,1],[0,0], [1,1]]
+    y = [[1],[1],[0],[0]]
+    data = (x,y)
+    print data
+    import ipdb; ipdb.set_trace()
+    run_training(data)
 
-def __name__ = '__main__'
+if __name__ == '__main__':
     tf.app.run()
 
