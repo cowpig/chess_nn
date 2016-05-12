@@ -38,39 +38,68 @@ def read_games(fn):
 def parse_game(game):
     gn = game.end()
 
-    gs = []
+    xs = []
+    ys = []
     while gn:
         gn = gn.parent # this mutates gn
         if not gn:
             print "game over"
             break
         b = gn.board()
-        s = utils.bb2array(b, flip=(b.turn == 0))
-        gs.append(s)
+        x = utils.bb2array(b, flip=(b.turn == 0))
+        y = utils.encode_legal_moves(b)
+        xs.append(x)
+        ys.append(y)
 
-    return gs
+    return (xs, ys)
 
-def read_all_games(fn_in, fn_out):
-    g = h5py.File(fn_out, 'w')
-    X = g.create_dataset('x', (0, 64), dtype='b', maxshape=(None, 64), chunks=True)
-    size = 0
-    line = 0
-    for game in read_games(fn_in):
-        game = parse_game(game)
-        if game is None:
-            continue
+def parse_games_2(fns_in, fn_out):
+    xs = []
+    ys = []
 
-        if line + 1 >= size:
-            g.flush()
-            size = 2 * size + 1
-            print 'resizing to', size
-            X.resize(size=size, axis=0)
+    i = 0
+    def next_fn(i):
+        return fn_out + str(i)
 
-        X[line] = game
-        line += 1
+    curr_fn = next_fn(i)
 
-    X.resize(size=line, axis=0)
-    g.close()
+    for fn_in in fns_in:
+        for game in read_games(fn_in):
+            x, y = parse_game(game)
+            xs.extend(x)
+            ys.extend(y)
+
+        if xs > 500000:
+            np.savez(curr_fn, [xs, ys])
+            i += 1
+            curr_fn = curr_fn(i)
+
+
+
+
+# def read_all_games(fn_in, fn_out):
+#     g = h5py.File(fn_out, 'w')
+#     X = g.create_dataset('x', (0, 64), dtype='int', maxshape=(None, 64), chunks=True)
+#     Y = g.create_dataset('y', (0, len(utils.MOVES)), dtype='bool_', maxshape(None, len(utils.MOVES)), chunks=True)
+
+#     size = 0
+#     line = 0
+#     for game in read_games(fn_in):
+#         game = parse_game(game)
+#         if game is None:
+#             continue
+
+#         if line + 1 >= size:
+#             g.flush()
+#             size = 2 * size + 1
+#             print 'resizing to', size
+#             X.resize(size=size, axis=0)
+
+#         X[line] = game
+#         line += 1
+
+#     X.resize(size=line, axis=0)
+#     g.close()
 
 def read_all_games_2(a):
     return read_all_games(*a)
@@ -91,5 +120,25 @@ def parse_dir():
     #pool.map(read_all_games_2, files)
     map(read_all_games_2, files)
 
+def parse_dir_2(d, fn_out):
+    files = []
+
+    for fn_in in os.listdir(d):
+        if not fn_in.endswith('.pgn'):
+            continue
+
+        print "adding {}".format(fn_in)
+        fn_in = os.path.join(d, fn_in)
+        files.append(fn_in)
+
+    parse_games_2(files, fn_out)
+
+
 if __name__ == '__main__':
-    parse_dir()
+    # parse_dir()
+    # try:
+    d_in = sys.argv[1]
+    f_out = sys.argv[2]
+    parse_dir_2(d_in, f_out)
+    # except:
+    #     print "usage: python parse_game.py <directory_with_pgns> <output_file>"
