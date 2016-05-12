@@ -109,16 +109,12 @@ def en_passant_idx(alg):
 def bb2array(b, flip=False):
     x = np.zeros(64, dtype=np.int8)
 
-    for pos, piece in get_all_pieces(b):
+    for piece, pos in get_all_pieces(b):
         if piece != 0:
-            color = int(bool(b.occupied_co[chess.BLACK] & chess.BB_SQUARES[pos]))
             col = int(pos % 8)
             row = int(pos / 8)
             if flip:
-                row = 7-row
-                color = 1 - color
-
-            piece = color*7 + piece
+                row = 7 - row
 
             x[row * 8 + col] = piece
 

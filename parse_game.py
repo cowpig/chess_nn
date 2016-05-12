@@ -35,18 +35,42 @@ def read_games(fn):
         
         yield g
 
+def parse_game(game):
+    gn = game.end()
+
+    gs = []
+    while gn:
+        gn = gn.parent # this mutates gn
+        if not gn:
+            print "game over"
+            break
+        b = gn.board()
+        s = utils.bb2array(b, flip=(b.turn == 0))
+        gs.append(s)
+
+    return gs
 
 def read_all_games(fn_in, fn_out):
-    data = []
+    g = h5py.File(fn_out, 'w')
+    X = g.create_dataset('x', (0, 64), dtype='b', maxshape=(None, 64), chunks=True)
+    size = 0
+    line = 0
     for game in read_games(fn_in):
-        # import ipdb; ipdb.set_trace()
-        gn = game.end()
-        while gn:
-            gn = gn.parent # this mutates gn
-            b = gn.board()
-            x = utils.bb2array(b, flip=(b.turn == 0))
-             
-            print x
+        game = parse_game(game)
+        if game is None:
+            continue
+
+        if line + 1 >= size:
+            g.flush()
+            size = 2 * size + 1
+            print 'resizing to', size
+            X.resize(size=size, axis=0)
+
+        X[line] = game
+        line += 1
+
+    X.resize(size=line, axis=0)
+    g.close()
 
 def read_all_games_2(a):
     return read_all_games(*a)
