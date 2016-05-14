@@ -5,7 +5,6 @@ import os
 import multiprocessing
 import itertools
 import random
-import h5py
 
 import utils
 
@@ -53,62 +52,42 @@ def parse_game(game):
 
     return (xs, ys)
 
-def parse_games_2(fns_in, fn_out):
+def read_all_games(fn_in, fn_out):
     xs = []
     ys = []
 
     i = 0
+    pos_count = 0
+    next_msg = 1000
     def next_fn(i):
         return fn_out + str(i)
 
     curr_fn = next_fn(i)
 
-    for fn_in in fns_in:
-        for game in read_games(fn_in):
-            x, y = parse_game(game)
-            xs.extend(x)
-            ys.extend(y)
+    for game in read_games(fn_in):
+        x, y = parse_game(game)
+        xs.extend(x)
+        ys.extend(y)
+        pos_count += len(x)
 
-        if xs > 500000:
+        if pos_count > next_msg == 0:
+            print "parsed {} positions".format(pos_count) 
+            next_msg += 1000
+
+        if len(xs) > 500000:
             np.savez(curr_fn, [xs, ys])
+            xs = []
+            ys = []
             i += 1
-            curr_fn = curr_fn(i)
-
-
-
-
-# def read_all_games(fn_in, fn_out):
-#     g = h5py.File(fn_out, 'w')
-#     X = g.create_dataset('x', (0, 64), dtype='int', maxshape=(None, 64), chunks=True)
-#     Y = g.create_dataset('y', (0, len(utils.MOVES)), dtype='bool_', maxshape(None, len(utils.MOVES)), chunks=True)
-
-#     size = 0
-#     line = 0
-#     for game in read_games(fn_in):
-#         game = parse_game(game)
-#         if game is None:
-#             continue
-
-#         if line + 1 >= size:
-#             g.flush()
-#             size = 2 * size + 1
-#             print 'resizing to', size
-#             X.resize(size=size, axis=0)
-
-#         X[line] = game
-#         line += 1
-
-#     X.resize(size=line, axis=0)
-#     g.close()
+            curr_fn = next_fn(i)
 
 def read_all_games_2(a):
     return read_all_games(*a)
 
-def parse_dir():
+def parse_dir(d):
     files = []
-    d = 'data'
+
     for fn_in in os.listdir(d):
-        print fn_in
         if not fn_in.endswith('.pgn'):
             continue
         fn_in = os.path.join(d, fn_in)
@@ -116,29 +95,11 @@ def parse_dir():
         if not os.path.exists(fn_out):
             files.append((fn_in, fn_out))
 
-    #pool = multiprocessing.Pool()
-    #pool.map(read_all_games_2, files)
-    map(read_all_games_2, files)
-
-def parse_dir_2(d, fn_out):
-    files = []
-
-    for fn_in in os.listdir(d):
-        if not fn_in.endswith('.pgn'):
-            continue
-
-        print "adding {}".format(fn_in)
-        fn_in = os.path.join(d, fn_in)
-        files.append(fn_in)
-
-    parse_games_2(files, fn_out)
-
+    pool = multiprocessing.Pool()
+    pool.map(read_all_games_2, files)
 
 if __name__ == '__main__':
-    # parse_dir()
     # try:
-    d_in = sys.argv[1]
-    f_out = sys.argv[2]
-    parse_dir_2(d_in, f_out)
+    parse_dir("games")
     # except:
     #     print "usage: python parse_game.py <directory_with_pgns> <output_file>"
