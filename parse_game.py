@@ -1,5 +1,5 @@
 import chess, chess.pgn
-import numpy
+import numpy as np
 import sys
 import os
 import multiprocessing
@@ -74,8 +74,8 @@ def read_all_games(fn_in, fn_out):
             print "parsed {} positions".format(pos_count) 
             next_msg += 1000
 
-        if len(xs) > 500000:
-            np.savez(curr_fn, [xs, ys])
+        if len(xs) > 100000:
+            np.savez_compressed(curr_fn, [xs, ys])
             xs = []
             ys = []
             i += 1
@@ -91,7 +91,7 @@ def parse_dir(d):
         if not fn_in.endswith('.pgn'):
             continue
         fn_in = os.path.join(d, fn_in)
-        fn_out = fn_in.replace('.pgn', '.hdf5')
+        fn_out = fn_in.replace('.pgn', '')
         if not os.path.exists(fn_out):
             files.append((fn_in, fn_out))
 
