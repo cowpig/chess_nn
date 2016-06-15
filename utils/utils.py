@@ -3,7 +3,6 @@ import chess
 from itertools import product
 
 # pieces on each sq, whose turn, castling availability, en passant
-POSITION_SIZE = (6*2 + 1) * 64 + 2 + 4 + 16
 SQUARES = ["{}{}".format(letter, number) for number in range(8,0,-1) for letter in "abcdefgh"]
 PIECES_LOOKUP= {
 	"p": 1,

@@ -100,6 +100,6 @@ def parse_dir(d):
 
 if __name__ == '__main__':
     # try:
-    parse_dir("games")
+    parse_dir("data")
     # except:
     #     print "usage: python parse_game.py <directory_with_pgns> <output_file>"
